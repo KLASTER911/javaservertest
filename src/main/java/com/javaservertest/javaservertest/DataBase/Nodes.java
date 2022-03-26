@@ -8,33 +8,33 @@ import javax.persistence.*;
 public class Nodes{
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
-    private int id;
+    private Integer id;
     
 
     @Column(name = "parentId", nullable = true)
-    private int parentId;
+    private Integer parentId;
     @Column(name = "name", nullable = true)
     private String name;
     @Column(name = "ip", nullable = true)
     private String ip;
     @Column(name = "port", nullable = true)
-    private int port;
+    private Integer port;
 
     public Nodes(){}
 
-    public int getId() {
+    public Integer getId() {
         return this.id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public int getParentId() {
+    public Integer getParentId() {
         return this.parentId;
     }
 
-    public void setParentId(int parentId) {
+    public void setParentId(Integer parentId) {
         this.parentId = parentId;
     }
 
@@ -54,11 +54,11 @@ public class Nodes{
         this.ip = ip;
     }
 
-    public int getPort() {
+    public Integer getPort() {
         return this.port;
     }
 
-    public void setPort(int port) {
+    public void setPort(Integer port) {
         this.port = port;
     }
 
