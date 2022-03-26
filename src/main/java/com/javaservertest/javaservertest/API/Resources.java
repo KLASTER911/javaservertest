@@ -1,9 +1,12 @@
 package com.javaservertest.javaservertest.API;
 import com.javaservertest.javaservertest.DataBase.NodesRepository;
-import com.javaservertest.javaservertest.DataBase.Nodes;
 
+import java.util.Optional;
+
+import com.javaservertest.javaservertest.DataBase.Nodes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.PathVariable;
 
 
-
+@Transactional
 @RestController
 public class Resources {
     @Autowired NodesRepository nodesRepository;
@@ -27,40 +30,66 @@ public class Resources {
     } 
 
     @PostMapping("/nodes")
-    public ResponseEntity<String> addNewNode(@RequestBody(required = false) String body){
+    public ResponseEntity<Nodes> addNewNode(@RequestBody Nodes body){
         System.out.println("POST /nodes");
-        Nodes nodes = new Nodes();
-        nodes.setIp("1232"); 
-        nodes.setName("aa");
-        nodes.setParentId(0); 
-        nodes.setPort(123);
-        System.out.println(nodes.getId() + nodes.getIp() + nodes.getName() + nodes.getParentId() + nodes.getPort());
-        nodesRepository.save(nodes);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Created");
+        Nodes save = nodesRepository.save(body);
+        return ResponseEntity.status(HttpStatus.OK).body(save);
     }
 
-    @GetMapping("/nodes/{id}")
-    public void getInfoOneNode(){
+    @GetMapping("/nodes/{nodeId}")
+    public ResponseEntity<Object> getInfoOneNode(@PathVariable Integer nodeId){
         System.out.println("GET /nodes/{nodeId}");
+        Optional<Nodes> nodesById = nodesRepository.findById(nodeId);
+        if (nodesById.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(nodesById);
     }
 
-    @PutMapping(value="/nodes/{nodeId}")
-    public void updateInfoOneNode(@PathVariable String nodeId, @RequestBody(required = false) String entity) {
+    @PutMapping("/nodes/{nodeId}")
+    public ResponseEntity<Object> updateInfoOneNode(@PathVariable Integer nodeId, @RequestBody Nodes body) {
         System.out.println("PUT /nodes/{nodeId}");
+        Optional<Nodes> nodesById = nodesRepository.findById(nodeId);
+        if (nodesById.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        nodesRepository.deleteById(nodeId);
+        Nodes save = nodesRepository.save(body); 
+        // судя по описанию put в сваггер - нужно удаление по nodeId и вставка новых данных под этим ID
+        // "nodeId - ID of node that needs to de deleted"
+        // сделал через удаление, но лучше было бы через UPDATE
+        return ResponseEntity.status(HttpStatus.OK).body(save);
     }
 
-    @DeleteMapping(value="/nodes/{nodeId}")
-    public void deleteInfoOneNode(@PathVariable String nodeId) {
+    @DeleteMapping("/nodes/{nodeId}")
+    public ResponseEntity<Object> deleteInfoOneNode(@PathVariable Integer nodeId) {
         System.out.println("DELETE /nodes/{nodeId}");
+        Optional<Nodes> nodesById = nodesRepository.findById(nodeId);
+        if (nodesById.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        nodesRepository.deleteById(nodeId); // удаление ноды
+        nodesRepository.deleteByParentId(nodeId); // удаление дочерних нод
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/nodes/{nodeId}/children/")
-    public void getNodeChildren(@PathVariable String nodeId){
+    public ResponseEntity<Object> getNodeChildren(@PathVariable Integer nodeId){
         System.out.println("GET /nodes/{nodeId}/children/");
+        Optional<Nodes> nodesById = nodesRepository.findByParentId(nodeId);
+        if (nodesById.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(nodesById);
     }
 
     @GetMapping("/nodes/root")
-    public void getRootNodes(){
+    public ResponseEntity<Object> getRootNodes(){
         System.out.println("GET /nodes/root");
+        Optional<Nodes> nodesById = nodesRepository.findByParentId(null);
+        if (nodesById.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(nodesById);
     }
 }
