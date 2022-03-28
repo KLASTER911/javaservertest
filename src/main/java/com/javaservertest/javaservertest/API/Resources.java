@@ -75,23 +75,17 @@ public class Resources {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/nodes/{nodeId}/children/")
+    @GetMapping("/nodes/{nodeId}/children")
     public ResponseEntity<Object> getNodeChildren(@PathVariable Integer nodeId){
         System.out.println("GET /nodes/{nodeId}/children/");
-        Optional<Nodes> nodesById = nodesRepository.findByParentId(nodeId);
-        if (nodesById.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        Iterable<Nodes> nodesById = nodesRepository.findAllByParentId(nodeId);
         return ResponseEntity.status(HttpStatus.OK).body(nodesById);
     }
 
     @GetMapping("/nodes/root")
     public ResponseEntity<Object> getRootNodes(){
         System.out.println("GET /nodes/root");
-        Optional<Nodes> nodesById = nodesRepository.findByParentId(null);
-        if (nodesById.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        Iterable<Nodes> nodesById = nodesRepository.findAllByParentId(null);
         return ResponseEntity.status(HttpStatus.OK).body(nodesById);
     }
 }
