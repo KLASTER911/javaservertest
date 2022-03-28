@@ -1,5 +1,9 @@
 package com.javaservertest.javaservertest.DataBase;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import javax.persistence.*;
 
 @Entity
@@ -10,7 +14,6 @@ public class Nodes{
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer id;
     
-
     @Column(name = "parentId", nullable = true)
     private Integer parentId;
     @Column(name = "name", nullable = true)
@@ -20,6 +23,9 @@ public class Nodes{
     @Column(name = "port", nullable = true)
     private Integer port;
 
+    @OneToMany(mappedBy = "parentId", cascade = CascadeType.REMOVE)
+    private Set<Nodes> childs = new LinkedHashSet<Nodes>();
+    
     public Nodes(){}
 
     public Integer getId() {
