@@ -55,12 +55,15 @@ public class Resources {
         if (nodesById.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        nodesRepository.deleteById(nodeId);
-        Nodes save = nodesRepository.save(body); 
+        nodesById.get().setId(body.getId());
+        nodesById.get().setIp(body.getIp());
+        nodesById.get().setName(body.getName());
+        nodesById.get().setParentId(body.getParentId());
+        nodesById.get().setPort(body.getPort());
         // судя по описанию put в сваггер - нужно удаление по nodeId и вставка новых данных под этим ID
         // "nodeId - ID of node that needs to de deleted"
         // сделал через удаление, но лучше было бы через UPDATE
-        return ResponseEntity.status(HttpStatus.OK).body(save);
+        return ResponseEntity.status(HttpStatus.OK).body(nodesById);
     }
 
     @DeleteMapping("/nodes/{nodeId}")
