@@ -36,43 +36,40 @@ public class Resources {
     @PostMapping("/nodes/")
     public ResponseEntity<Nodes> addNewNode(@RequestBody Nodes body){
         System.out.println("POST /nodes");
-        Nodes save = nodesRepository.save(body);
-        return ResponseEntity.status(HttpStatus.OK).body(save);
+        Nodes saveNodeInDataBase = nodesRepository.save(body);
+        return ResponseEntity.status(HttpStatus.OK).body(saveNodeInDataBase);
     }
 
     @GetMapping("/nodes/{nodeId}")
     public ResponseEntity<Object> getInfoOneNode(@PathVariable Integer nodeId){
         System.out.println("GET /nodes/{nodeId}");
-        Optional<Nodes> nodesById = nodesRepository.findById(nodeId);
-        if (nodesById.isEmpty()){
+        Optional<Nodes> findNodeById = nodesRepository.findById(nodeId);
+        if (findNodeById.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        return ResponseEntity.status(HttpStatus.OK).body(nodesById);
+        return ResponseEntity.status(HttpStatus.OK).body(findNodeById);
     }
 
     @PutMapping("/nodes/{nodeId}")
     public ResponseEntity<Object> updateInfoOneNode(@PathVariable Integer nodeId, @RequestBody Nodes body) {
         System.out.println("PUT /nodes/{nodeId}");
-        Optional<Nodes> nodesById = nodesRepository.findById(nodeId);
-        if (nodesById.isEmpty()){
+        Optional<Nodes> findNodeById = nodesRepository.findById(nodeId);
+        if (findNodeById.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        nodesById.get().setId(body.getId());
-        nodesById.get().setIp(body.getIp());
-        nodesById.get().setName(body.getName());
-        nodesById.get().setParentId(body.getParentId());
-        nodesById.get().setPort(body.getPort());
-        // судя по описанию put в сваггер - нужно удаление по nodeId и вставка новых данных под этим ID
-        // "nodeId - ID of node that needs to de deleted"
-        // сделал через удаление, но лучше было бы через UPDATE
-        return ResponseEntity.status(HttpStatus.OK).body(nodesById);
+        findNodeById.get().setId(body.getId());
+        findNodeById.get().setIp(body.getIp());
+        findNodeById.get().setName(body.getName());
+        findNodeById.get().setParentId(body.getParentId());
+        findNodeById.get().setPort(body.getPort());
+        return ResponseEntity.status(HttpStatus.OK).body(findNodeById);
     }
 
     @DeleteMapping("/nodes/{nodeId}")
     public ResponseEntity<Object> deleteInfoOneNode(@PathVariable Integer nodeId) {
         System.out.println("DELETE /nodes/{nodeId}");
-        Optional<Nodes> nodesById = nodesRepository.findById(nodeId);
-        if (nodesById.isEmpty()){
+        Optional<Nodes> findNodeById = nodesRepository.findById(nodeId);
+        if (findNodeById.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         nodesRepository.deleteById(nodeId); // удаление ноды
@@ -83,14 +80,14 @@ public class Resources {
     @GetMapping("/nodes/{nodeId}/children")
     public ResponseEntity<Object> getNodeChildren(@PathVariable Integer nodeId){
         System.out.println("GET /nodes/{nodeId}/children/");
-        Iterable<Nodes> nodesById = nodesRepository.findAllByParentId(nodeId);
-        return ResponseEntity.status(HttpStatus.OK).body(nodesById);
+        Iterable<Nodes> findAllNodesByParentId = nodesRepository.findAllByParentId(nodeId);
+        return ResponseEntity.status(HttpStatus.OK).body(findAllNodesByParentId);
     }
 
     @GetMapping("/nodes/root")
     public ResponseEntity<Object> getRootNodes(){
         System.out.println("GET /nodes/root");
-        Iterable<Nodes> nodesById = nodesRepository.findAllByParentId(null);
-        return ResponseEntity.status(HttpStatus.OK).body(nodesById);
+        Iterable<Nodes> findAllNodesByParentId = nodesRepository.findAllByParentId(null);
+        return ResponseEntity.status(HttpStatus.OK).body(findAllNodesByParentId);
     }
 }
